@@ -42,6 +42,7 @@ function HeaderInner({ logoUrl, navItems: navItemsProp }: HeaderProps) {
   const [search,        setSearch]        = useState("");
   const [navItems,      setNavItems]      = useState<NavItem[]>(navItemsProp ?? []);
   const [resolvedLogo,  setResolvedLogo]  = useState<string | null>(logoUrl || null);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   // Search dropdown
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchOpen,    setSearchOpen]    = useState(false);
@@ -65,6 +66,23 @@ function HeaderInner({ logoUrl, navItems: navItemsProp }: HeaderProps) {
     observer.observe(el);
     return () => observer.disconnect();
   }, []);
+
+  // Category sidebar collapse state lives on <html> so the sidebar (a
+  // separate component) can react via CSS; remembered across visits.
+  useEffect(() => {
+    try {
+      setSidebarCollapsed(localStorage.getItem("sidebarCollapsed") === "1");
+    } catch {}
+  }, []);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    if (sidebarCollapsed) root.dataset.sidebar = "collapsed";
+    else delete root.dataset.sidebar;
+    try {
+      localStorage.setItem("sidebarCollapsed", sidebarCollapsed ? "1" : "0");
+    } catch {}
+  }, [sidebarCollapsed]);
 
   // If the parent (a Server Component) already fetched the menu, skip this
   // fetch entirely — otherwise fall back to fetching it here on mount.
@@ -446,7 +464,20 @@ function HeaderInner({ logoUrl, navItems: navItemsProp }: HeaderProps) {
       </div>
 
       {/* ── Navigation bar ── */}
-      <nav style={{ backgroundColor: PRIMARY, borderBottom: "3px solid transparent", borderImage: "linear-gradient(90deg, #1BAEE4 0 33%, #F6C92C 33% 66%, #F07A22 66% 100%) 1" }}>
+      <nav style={{ position: "relative", backgroundColor: PRIMARY, borderBottom: "3px solid transparent", borderImage: "linear-gradient(90deg, #1BAEE4 0 33%, #F6C92C 33% 66%, #F07A22 66% 100%) 1" }}>
+        {/* Shrinks/expands the desktop category sidebar */}
+        <button
+          type="button"
+          className="sidebar-toggle hidden lg:flex"
+          onClick={() => setSidebarCollapsed((v) => !v)}
+          aria-label={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+          aria-pressed={sidebarCollapsed}
+          title={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+        >
+          <svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+            <path d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
         <div style={{ width: "90%", margin: "0 auto" }}>
 
           {/* Desktop nav — fixed store links; categories live in the sidebar */}

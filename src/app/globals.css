@@ -723,6 +723,44 @@ body {
 .cat-sidebar-row {
   transition: background 0.15s;
 }
+/* Collapsed sidebar: a narrow rail of quick-link icons (toggled from the header nav) */
+.cat-sidebar-wrap {
+  transition: width 0.2s;
+}
+html[data-sidebar="collapsed"] .cat-sidebar-wrap {
+  width: 56px;
+  overflow-x: hidden;
+}
+html[data-sidebar="collapsed"] .cat-sidebar-label,
+html[data-sidebar="collapsed"] .cat-sidebar-cats {
+  display: none;
+}
+html[data-sidebar="collapsed"] .cat-sidebar-quick {
+  justify-content: center;
+}
+.sidebar-toggle {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.sidebar-toggle:hover {
+  background: rgba(255, 255, 255, 0.24);
+}
+/* Only meaningful on pages that render the category sidebar */
+html:not(:has(.cat-sidebar-wrap)) .sidebar-toggle {
+  display: none;
+}
 .cat-sidebar-row:hover {
   background: #f3f6f8;
 }

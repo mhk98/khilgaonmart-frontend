@@ -104,7 +104,8 @@ function CategorySidebarInner({ navItems }: { navItems: NavItem[] }) {
             <Link
               key={link.href}
               href={link.href}
-              className="cat-sidebar-row"
+              title={link.label}
+              className="cat-sidebar-row cat-sidebar-quick"
               style={{
                 display: "flex",
                 alignItems: "center",
@@ -119,13 +120,13 @@ function CategorySidebarInner({ navItems }: { navItems: NavItem[] }) {
               <span style={{ color: QUICK_LINK_COLORS[link.href] ?? PRIMARY, display: "flex" }}>
                 <StoreLinkIcon name={link.icon} />
               </span>
-              {link.label}
+              <span className="cat-sidebar-label">{link.label}</span>
             </Link>
           );
         })}
       </div>
 
-      <div style={{ padding: "8px 0" }}>
+      <div className="cat-sidebar-cats" style={{ padding: "8px 0" }}>
         <Link
           href="/shop"
           className="cat-sidebar-row"
