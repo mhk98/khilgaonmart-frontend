@@ -71,9 +71,50 @@ function cookie(name: string) {
     ?.split("=")[1] || "";
 }
 
+// Ad click ids and UTM tags only exist on the landing URL, so they are kept for the session
+// and still reach the order after the visitor browses to checkout.
+const CAMPAIGN_PARAMS = [
+  "fbclid",
+  "ttclid",
+  "gclid",
+  "gbraid",
+  "wbraid",
+  "utm_source",
+  "utm_medium",
+  "utm_campaign",
+  "utm_content",
+  "utm_term",
+  "utm_id",
+  "campaign_id",
+];
+const CAMPAIGN_STORAGE_KEY = "campaignParams";
+
+function storedCampaignParams(): Record<string, string> {
+  try {
+    return JSON.parse(sessionStorage.getItem(CAMPAIGN_STORAGE_KEY) || "{}") || {};
+  } catch {
+    return {};
+  }
+}
+
+export function rememberCampaignParams() {
+  if (typeof window === "undefined") return;
+  const search = new URLSearchParams(window.location.search);
+  const found = Object.fromEntries(
+    CAMPAIGN_PARAMS.map((name) => [name, search.get(name) || ""]).filter(([, value]) => value)
+  );
+  if (!Object.keys(found).length) return;
+  try {
+    // A new ad click replaces the previous campaign rather than mixing the two.
+    sessionStorage.setItem(CAMPAIGN_STORAGE_KEY, JSON.stringify(found));
+  } catch {
+    // storage blocked: the current URL is still read directly below
+  }
+}
+
 function param(name: string) {
   if (typeof window === "undefined") return "";
-  return new URLSearchParams(window.location.search).get(name) || "";
+  return new URLSearchParams(window.location.search).get(name) || storedCampaignParams()[name] || "";
 }
 
 export function getPixelClickData() {
@@ -86,6 +127,13 @@ export function getPixelClickData() {
     gclid: param("gclid") || undefined,
     gbraid: param("gbraid") || undefined,
     wbraid: param("wbraid") || undefined,
+    utm_source: param("utm_source") || undefined,
+    utm_medium: param("utm_medium") || undefined,
+    utm_campaign: param("utm_campaign") || undefined,
+    utm_content: param("utm_content") || undefined,
+    utm_term: param("utm_term") || undefined,
+    utm_id: param("utm_id") || undefined,
+    campaign_id: param("campaign_id") || undefined,
   };
 }
 

@@ -2,7 +2,7 @@
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { BASE } from "@/lib/api";
-import { markPixelsReady, trackPageView } from "@/lib/pixel";
+import { markPixelsReady, rememberCampaignParams, trackPageView } from "@/lib/pixel";
 
 interface TrackingConfig {
   metaPixels?: { pixelsId: string }[];
@@ -118,6 +118,7 @@ export default function MetaPixel() {
 
   // Fires on first load and on every client-side route change; browser side waits for init
   useEffect(() => {
+    rememberCampaignParams();
     trackPageView();
   }, [pathname]);
 
